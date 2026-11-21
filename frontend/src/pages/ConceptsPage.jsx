@@ -51,14 +51,15 @@ function getYouTubeDetails(url) {
   };
 }
 
-// Focused Reusable YouTube Video Masterclass Component - One Best Curated Video
+// Clean Embedded Video Player - Plays directly inside the app (Not the YouTube website)
 function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
   const { videoId, watchUrl } = getYouTubeDetails(videoUrl);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [thumbError, setThumbError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   
-  const targetUrl = watchUrl || "https://www.youtube.com";
   const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+  const embedSrc = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : '';
 
   return (
     <div style={{
@@ -71,7 +72,7 @@ function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
       overflow: 'hidden',
       padding: '1.25rem'
     }}>
-      {/* Player Header with YouTube Badge & Single Watch on YouTube Button */}
+      {/* Player Header */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -94,186 +95,197 @@ function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
             borderRadius: '4px',
             letterSpacing: '0.02em'
           }}>
-            <Play size={11} fill="#ffffff" /> Curated Masterclass
+            <Play size={11} fill="#ffffff" /> Concept Video Lecture
           </span>
           <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#f8fafc' }}>
             {title || 'Concept Video Masterclass'}
           </span>
         </div>
 
-        <a
-          href={targetUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#ef4444',
-            color: '#ffffff',
-            padding: '6px 14px',
-            borderRadius: '8px',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            textDecoration: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
-        >
-          <span>Watch on YouTube</span>
-          <ExternalLink size={13} />
-        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {!isPlaying && (
+            <button
+              onClick={() => setIsPlaying(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                backgroundColor: '#ef4444',
+                color: '#ffffff',
+                border: 'none',
+                padding: '5px 12px',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              <Play size={12} fill="#ffffff" />
+              <span>Play Video</span>
+            </button>
+          )}
+
+          {watchUrl && (
+            <a
+              href={watchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open video on YouTube"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                color: '#94a3b8',
+                fontSize: '0.76rem',
+                textDecoration: 'none',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid #334155'
+              }}
+            >
+              <ExternalLink size={12} />
+              <span>YouTube ↗</span>
+            </a>
+          )}
+        </div>
       </div>
 
-      {/* NATIVE CLICKABLE ANCHOR LINK - DIRECTLY OPENS THE BEST VIDEO ON YOUTUBE */}
-      <a
-        href={targetUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          display: 'block',
-          position: 'relative',
-          paddingBottom: isModal ? '56.25%' : '48%',
-          height: 0,
-          overflow: 'hidden',
-          borderRadius: '10px',
-          backgroundColor: '#0a0f1d',
-          backgroundImage: 'radial-gradient(ellipse at center, rgba(30, 41, 59, 0.7) 0%, rgba(10, 15, 29, 0.95) 100%)',
-          border: isHovered ? '2px solid #ef4444' : '1px solid #334155',
-          cursor: 'pointer',
-          textDecoration: 'none',
-          transition: 'all 0.25s ease'
-        }}
-        title="Click here to watch this lecture directly on YouTube"
-      >
-        {/* Background Thumbnail Image of the single best video */}
-        {!thumbError && thumbnailUrl ? (
-          <img
-            src={thumbnailUrl}
-            alt={title}
-            referrerPolicy="no-referrer"
-            onError={() => setThumbError(true)}
+      {/* EMBEDDED VIDEO PLAYER - PLAYS RIGHT HERE IN THE APP */}
+      <div style={{
+        position: 'relative',
+        paddingBottom: isModal ? '56.25%' : '50%',
+        height: 0,
+        overflow: 'hidden',
+        borderRadius: '12px',
+        backgroundColor: '#0a0f1d',
+        border: '1px solid #334155'
+      }}>
+        {isPlaying && embedSrc ? (
+          <iframe
+            src={embedSrc}
+            title={title || "Concept Video Lecture"}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
-              filter: isHovered ? 'brightness(0.9) scale(1.03)' : 'brightness(0.65)',
-              transition: 'all 0.3s ease'
+              border: 'none',
+              borderRadius: '12px'
             }}
           />
         ) : (
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }} />
+          <div
+            onClick={() => setIsPlaying(true)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#070b14',
+              borderRadius: '12px',
+              overflow: 'hidden'
+            }}
+          >
+            {!thumbError && thumbnailUrl ? (
+              <img
+                src={thumbnailUrl}
+                alt={title}
+                referrerPolicy="no-referrer"
+                onError={() => setThumbError(true)}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  filter: isHovered ? 'brightness(0.9) scale(1.02)' : 'brightness(0.7)',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            ) : null}
+
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.6) 100%)',
+              pointerEvents: 'none'
+            }} />
+
+            <div style={{
+              position: 'relative',
+              zIndex: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px',
+              transform: isHovered ? 'scale(1.1)' : 'scale(1.0)',
+              transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }}>
+              <div style={{
+                width: '68px',
+                height: '48px',
+                backgroundColor: '#ef4444',
+                borderRadius: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 24px rgba(239, 68, 68, 0.6), 0 0 20px rgba(239, 68, 68, 0.4)'
+              }}>
+                <Play size={24} fill="#ffffff" color="#ffffff" style={{ marginLeft: '3px' }} />
+              </div>
+              <span style={{
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                color: '#ffffff',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                padding: '5px 14px',
+                borderRadius: '999px',
+                border: '1px solid rgba(255,255,255,0.2)',
+                letterSpacing: '0.02em'
+              }}>
+                ▶ Click to Play Video Here
+              </span>
+            </div>
+
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              left: '14px',
+              right: '14px',
+              zIndex: 2,
+              pointerEvents: 'none'
+            }}>
+              <div style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>
+                In-App Video Lecture
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 700, textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+                {title}
+              </div>
+            </div>
+          </div>
         )}
+      </div>
 
-        {/* Decorative Gradient Overlay */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%)',
-          pointerEvents: 'none'
-        }} />
-
-        {/* Center YouTube Big Play Button */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: isHovered ? 'translate(-50%, -50%) scale(1.15)' : 'translate(-50%, -50%) scale(1.0)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '10px',
-          pointerEvents: 'none',
-          transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-        }}>
-          <div style={{
-            width: '68px',
-            height: '48px',
-            backgroundColor: '#ef4444',
-            borderRadius: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.6), 0 0 20px rgba(239, 68, 68, 0.4)'
-          }}>
-            <Play size={24} fill="#ffffff" color="#ffffff" style={{ marginLeft: '3px' }} />
-          </div>
-          <span style={{
-            fontSize: '0.85rem',
-            fontWeight: 800,
-            color: '#ffffff',
-            backgroundColor: 'rgba(0,0,0,0.75)',
-            padding: '4px 12px',
-            borderRadius: '999px',
-            border: '1px solid rgba(255,255,255,0.2)',
-            letterSpacing: '0.02em',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-          }}>
-            ▶ Click to Watch on YouTube
-          </span>
-        </div>
-
-        {/* Bottom Banner inside the Video */}
-        <div style={{
-          position: 'absolute',
-          bottom: '12px',
-          left: '14px',
-          right: '14px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          pointerEvents: 'none'
-        }}>
-          <div style={{ maxWidth: '80%' }}>
-            <div style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>
-              Full HD Video Lecture
-            </div>
-            <div style={{ fontSize: '0.88rem', color: '#ffffff', fontWeight: 700, textShadow: '0 2px 4px rgba(0,0,0,0.8)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {title}
-            </div>
-          </div>
-          <span style={{
-            fontSize: '0.72rem',
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            color: 'var(--accent-cyan)',
-            padding: '3px 8px',
-            borderRadius: '4px',
-            border: '1px solid rgba(56, 189, 248, 0.4)',
-            fontWeight: 700,
-            whiteSpace: 'nowrap'
-          }}>
-            HD 1080p ↗
-          </span>
-        </div>
-      </a>
-
-      {/* Helpful Action Bar */}
+      {/* Footer Info */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0.65rem 0.85rem',
+        padding: '0.55rem 0.85rem',
         borderRadius: '8px',
         backgroundColor: '#0b1120',
         border: '1px solid #1e293b',
@@ -282,24 +294,11 @@ function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Sparkles size={14} style={{ color: 'var(--accent-cyan)' }} />
-          <span>Curated best lecture • Click anywhere on this card to watch on YouTube.</span>
+          <span>Curated video lecture plays directly inside the simulator.</span>
         </div>
-        <a
-          href={targetUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: 'var(--accent-cyan)',
-            fontWeight: 700,
-            fontSize: '0.78rem',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
-          <span>Open on YouTube ↗</span>
-        </a>
+        <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.75rem' }}>
+          • Full Screen Supported
+        </span>
       </div>
     </div>
   );
@@ -950,16 +949,9 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
                       <span>Open Lessons</span>
                     </button>
 
-                    {/* 2. Videos - Clicks Directly to YouTube */}
+                    {/* 2. Video - Opens In-App Video Player */}
                     <button
-                      onClick={() => {
-                        const { watchUrl } = getYouTubeDetails(concept.video_url);
-                        if (watchUrl) {
-                          window.open(watchUrl, '_blank', 'noopener,noreferrer');
-                        } else {
-                          setVideoModalLesson(concept);
-                        }
-                      }}
+                      onClick={() => setVideoModalLesson(concept)}
                       style={{
                         padding: '0.45rem 0.5rem',
                         borderRadius: '6px',
@@ -975,12 +967,12 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
                         gap: '4px',
                         transition: 'all 0.15s ease'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.borderColor = '#ef4444'; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.borderColor = '#ef4444'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#0f172a'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = '#334155'; }}
-                      title="Watch this lecture on YouTube"
+                      title="Play concept video lecture inside app"
                     >
                       <Video size={13} style={{ color: '#ef4444' }} />
-                      <span>YouTube ↗</span>
+                      <span>Video</span>
                     </button>
 
                     {/* 3. Visualize */}
