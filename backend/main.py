@@ -55,15 +55,37 @@ app.include_router(analytics.router, prefix=prefix)
 app.include_router(reviews.router, prefix=prefix)
 app.include_router(profile.router, prefix=prefix)
 
-@app.get("/")
-def root():
-    return {
-        "platform": settings.PROJECT_NAME,
-        "tagline": "Learn Algorithms. Master Logic. Build Anything.",
-        "version": settings.VERSION,
-        "api_docs": "/docs",
-        "status": "operational"
-    }
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+
+# Mount frontend production build if available
+frontend_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
+
+    @app.get("/")
+    def serve_index():
+        return FileResponse(frontend_dist / "index.html")
+
+    @app.get("/{full_path:path}")
+    def serve_spa(full_path: str):
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+            return None
+        target = frontend_dist / full_path
+        if target.is_file():
+            return FileResponse(target)
+        return FileResponse(frontend_dist / "index.html")
+else:
+    @app.get("/")
+    def root():
+        return {
+            "platform": settings.PROJECT_NAME,
+            "tagline": "Learn Algorithms. Master Logic. Build Anything.",
+            "version": settings.VERSION,
+            "api_docs": "/docs",
+            "status": "operational"
+        }
 
 @app.get("/health")
 def health():

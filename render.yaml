@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: algomentor-dsa-simulator
+    env: python
+    buildCommand: "pip install -r backend/requirements.txt && cd frontend && npm install && npm run build && cd .."
+    startCommand: "uvicorn main:app --app-dir backend --host 0.0.0.0 --port $PORT"
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: NODE_VERSION
+        value: 20.11.0
