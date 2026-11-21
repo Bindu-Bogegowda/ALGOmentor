@@ -55,15 +55,9 @@ function getYouTubeDetails(url) {
 function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
   const { videoId, embedUrl, watchUrl } = getYouTubeDetails(videoUrl);
   const [isHovered, setIsHovered] = useState(false);
-  const thumbnailUrl = videoId 
-    ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` 
-    : 'https://images.unsplash.com/photo-1516116211227-bbc97bf0076f?auto=format&fit=crop&w=800&q=80';
-
-  const handleClickToYouTube = () => {
-    if (watchUrl) {
-      window.open(watchUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
+  const [thumbError, setThumbError] = useState(false);
+  const targetUrl = watchUrl || "https://www.youtube.com";
+  const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
 
   return (
     <div style={{
@@ -106,68 +100,78 @@ function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
           </span>
         </div>
 
-        {watchUrl && (
-          <button
-            onClick={handleClickToYouTube}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#ef4444',
-              border: 'none',
-              color: '#ffffff',
-              padding: '6px 14px',
-              borderRadius: '8px',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
-          >
-            <span>Watch on YouTube</span>
-            <ExternalLink size={13} />
-          </button>
-        )}
+        <a
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#ef4444',
+            color: '#ffffff',
+            padding: '6px 14px',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+        >
+          <span>Watch on YouTube</span>
+          <ExternalLink size={13} />
+        </a>
       </div>
 
-      {/* CLICKABLE VIDEO BANNER - CLICKS STRAIGHT TO YOUTUBE */}
-      <div
-        onClick={handleClickToYouTube}
+      {/* NATIVE CLICKABLE ANCHOR LINK - CAN NEVER BE BLOCKED BY POPUP BLOCKERS */}
+      <a
+        href={targetUrl}
+        target="_blank"
+        rel="noopener noreferrer"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
+          display: 'block',
           position: 'relative',
           paddingBottom: isModal ? '56.25%' : '48%',
           height: 0,
           overflow: 'hidden',
           borderRadius: '10px',
-          backgroundColor: '#000000',
+          backgroundColor: '#0a0f1d',
+          backgroundImage: 'radial-gradient(ellipse at center, rgba(30, 41, 59, 0.7) 0%, rgba(10, 15, 29, 0.95) 100%)',
           border: isHovered ? '2px solid #ef4444' : '1px solid #334155',
           cursor: 'pointer',
+          textDecoration: 'none',
           transition: 'all 0.25s ease'
         }}
-        title="Click to watch this lecture on YouTube"
+        title="Click here to watch this lecture directly on YouTube"
       >
-        {/* Background Thumbnail Image */}
-        <img
-          src={thumbnailUrl}
-          alt={title}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            filter: isHovered ? 'brightness(0.9) scale(1.03)' : 'brightness(0.65)',
-            transition: 'all 0.3s ease'
-          }}
-        />
+        {/* Background Thumbnail Image with fallback */}
+        {!thumbError && thumbnailUrl && (
+          <img
+            src={thumbnailUrl}
+            alt={title}
+            referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
+            onError={() => setThumbError(true)}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: isHovered ? 'brightness(0.9) scale(1.03)' : 'brightness(0.65)',
+              transition: 'all 0.3s ease'
+            }}
+          />
+        )}
 
-        {/* Dark Gradient Overlay */}
+        {/* Decorative Grid Patterns if thumbnail fails or behind it */}
         <div style={{
           position: 'absolute',
           top: 0,
@@ -249,7 +253,7 @@ function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
             HD 1080p ↗
           </span>
         </div>
-      </div>
+      </a>
 
       {/* Helpful Action Bar */}
       <div style={{
@@ -265,28 +269,24 @@ function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Sparkles size={14} style={{ color: 'var(--accent-cyan)' }} />
-          <span>Click anywhere on this video to open and watch on YouTube with subtitles and chapters.</span>
+          <span>Clicking anywhere on this card opens the lesson directly on YouTube.</span>
         </div>
-        {watchUrl && (
-          <button
-            onClick={handleClickToYouTube}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent-cyan)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: 0
-            }}
-          >
-            <span>Open YouTube</span>
-            <ExternalLink size={12} />
-          </button>
-        )}
+        <a
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: 'var(--accent-cyan)',
+            fontWeight: 700,
+            fontSize: '0.78rem',
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+        >
+          <span>Open Link ↗</span>
+        </a>
       </div>
     </div>
   );
