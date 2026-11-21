@@ -31,6 +31,151 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 
+// Helper to extract clean YouTube embed and watch URLs
+function getYouTubeDetails(url) {
+  if (!url) return { videoId: '', embedUrl: '', watchUrl: '' };
+  let videoId = '';
+  if (url.includes('/embed/')) {
+    videoId = url.split('/embed/')[1]?.split('?')[0]?.split('&')[0];
+  } else if (url.includes('watch?v=')) {
+    videoId = url.split('watch?v=')[1]?.split('&')[0];
+  } else if (url.includes('youtu.be/')) {
+    videoId = url.split('youtu.be/')[1]?.split('?')[0];
+  } else {
+    videoId = url;
+  }
+  return {
+    videoId,
+    embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&enablejsapi=1`,
+    watchUrl: `https://www.youtube.com/watch?v=${videoId}`
+  };
+}
+
+// Polished Reusable YouTube Video Masterclass Component
+function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
+  const { videoId, embedUrl, watchUrl } = getYouTubeDetails(videoUrl);
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.75rem',
+      backgroundColor: '#070b14',
+      borderRadius: '12px',
+      border: '1px solid #1e293b',
+      overflow: 'hidden',
+      padding: '1rem'
+    }}>
+      {/* Player Header with YouTube Badge & Direct External Button */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        paddingBottom: '0.5rem',
+        borderBottom: '1px solid #1e293b'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            backgroundColor: '#ef4444',
+            color: '#ffffff',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            padding: '3px 8px',
+            borderRadius: '4px',
+            letterSpacing: '0.02em'
+          }}>
+            <Play size={10} fill="#ffffff" /> YouTube Lecture
+          </span>
+          <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#f8fafc' }}>
+            {title || 'Concept Video Masterclass'}
+          </span>
+        </div>
+
+        {watchUrl && (
+          <a
+            href={watchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#f87171',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '0.76rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#ffffff'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.15)'; e.currentTarget.style.color = '#f87171'; }}
+          >
+            <span>Watch on YouTube</span>
+            <ExternalLink size={12} />
+          </a>
+        )}
+      </div>
+
+      {/* Embedded Iframe with strict cross-origin policies */}
+      <div style={{
+        position: 'relative',
+        paddingBottom: isModal ? '56.25%' : '48%',
+        height: 0,
+        overflow: 'hidden',
+        borderRadius: '8px',
+        backgroundColor: '#000000',
+        border: '1px solid #1e293b'
+      }}>
+        <iframe
+          src={embedUrl}
+          title={title || 'DSA Masterclass Video'}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+          loading="lazy"
+        />
+      </div>
+
+      {/* Fallback & Pro-tip banner */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0.5rem 0.75rem',
+        borderRadius: '6px',
+        backgroundColor: '#0b1120',
+        border: '1px solid #1e293b',
+        fontSize: '0.76rem',
+        color: '#94a3b8'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Sparkles size={13} style={{ color: 'var(--accent-cyan)' }} />
+          <span>If YouTube restricts embedded playback in your browser, click <strong>"Watch on YouTube ↗"</strong> to stream in HD.</span>
+        </div>
+        {watchUrl && (
+          <a
+            href={watchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--accent-cyan)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '8px' }}
+          >
+            Open on YouTube ↗
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Mapping of PDF Roadmap sections to underlying lesson categories
 const ROADMAP_CATEGORY_MAPPING = {
   'basic data structures': [
@@ -857,15 +1002,11 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
                 </button>
               </div>
 
-              <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
-                <iframe
-                  src={videoModalLesson.video_url || "https://www.youtube.com/embed/kPRA0W1kECg"}
-                  title={videoModalLesson.title}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
+              <YouTubeMasterclassPlayer
+                videoUrl={videoModalLesson.video_url}
+                title={videoModalLesson.video_title || videoModalLesson.title}
+                isModal={true}
+              />
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button
@@ -1160,17 +1301,13 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
             <div style={{ padding: '1.5rem', borderRadius: '14px', backgroundColor: '#0B1120', border: '1px solid #1E293B' }}>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Video size={16} style={{ color: '#ef4444' }} />
-                Video Walkthrough: {selectedLesson.video_title}
+                SECTION 2: Curated Video Lecture Walkthrough
               </h3>
-              <div style={{ position: 'relative', paddingBottom: '45%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
-                <iframe
-                  src={selectedLesson.video_url}
-                  title={selectedLesson.video_title}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
+              <YouTubeMasterclassPlayer
+                videoUrl={selectedLesson.video_url}
+                title={selectedLesson.video_title || selectedLesson.title}
+                isModal={false}
+              />
             </div>
           )}
         </div>

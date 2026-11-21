@@ -58,7 +58,8 @@ class CodeRunResponse(BaseModel):
 
 class HintRequest(BaseModel):
     problem_id: int
-    level: int # 1, 2, or 3
+    level: int # 1, 2, 3, 4, 5... unlimited progressive levels
+    current_code: Optional[str] = None
 
 class HintResponse(BaseModel):
     level: int

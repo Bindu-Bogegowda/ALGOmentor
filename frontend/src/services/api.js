@@ -98,10 +98,10 @@ export const api = {
     }),
 
   // Hints
-  getHint: (problemId, level) =>
+  getHint: (problemId, level, currentCode = null) =>
     request('/hints', {
       method: 'POST',
-      body: JSON.stringify({ problem_id: problemId, level })
+      body: JSON.stringify({ problem_id: problemId, level, current_code: currentCode })
     }),
 
   // Debugger
