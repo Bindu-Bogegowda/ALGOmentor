@@ -951,7 +951,18 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
 
                     {/* 2. Video - Opens In-App Video Player */}
                     <button
-                      onClick={() => setVideoModalLesson(concept)}
+                      onClick={async () => {
+                        if (concept.video_url) {
+                          setVideoModalLesson(concept);
+                        } else {
+                          try {
+                            const detail = await api.getLesson(concept.id);
+                            setVideoModalLesson(detail);
+                          } catch (e) {
+                            setVideoModalLesson(concept);
+                          }
+                        }
+                      }}
                       style={{
                         padding: '0.45rem 0.5rem',
                         borderRadius: '6px',

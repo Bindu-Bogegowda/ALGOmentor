@@ -21,6 +21,8 @@ class LessonSummary(BaseModel):
     stage_name: str = "Core Foundations"
     level_number: int = 1
     level_title: str = "Level 1: Programming Foundations"
+    video_url: Optional[str] = None
+    video_title: Optional[str] = None
     prev_lesson_id: Optional[str] = None
     next_lesson_id: Optional[str] = None
 

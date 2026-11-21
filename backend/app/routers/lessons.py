@@ -70,6 +70,8 @@ def list_lessons(
             stage_name=l.stage_name or "Core Foundations",
             level_number=l.level_number or 1,
             level_title=l.level_title or "Level 1: Programming Foundations",
+            video_url=l.video_url,
+            video_title=l.video_title,
             prev_lesson_id=l.prev_lesson_id,
             next_lesson_id=l.next_lesson_id
         ))
