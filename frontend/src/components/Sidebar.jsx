@@ -13,7 +13,9 @@ import {
   Moon,
   Trophy,
   ArrowRight,
-  Flame
+  Flame,
+  LogIn,
+  LogOut
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -25,7 +27,8 @@ const NAV_ITEMS = [
   { id: 'ai-tutor', label: 'AI Mentor', icon: Sparkles },
   { id: 'streaks', label: 'Activity Heatmap', icon: Flame, isHighlight: true },
   { id: 'progress', label: 'Progress', icon: BarChart2 },
-  { id: 'profile', label: 'Profile', icon: Settings },
+  { id: 'login', label: 'Sign In / Account', icon: LogIn },
+  { id: 'profile', label: 'Settings', icon: Settings },
 ];
 
 export default function Sidebar({ 
@@ -115,6 +118,85 @@ export default function Sidebar({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* User Auth Quick Action */}
+        <div style={{ padding: '0 0.85rem 0.75rem 0.85rem' }}>
+          {user ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.5rem 0.75rem',
+              borderRadius: '12px',
+              backgroundColor: isLight ? '#F1F5F9' : '#1E293B',
+              border: isLight ? '1px solid #E2E8F0' : '1px solid #334155'
+            }}>
+              <div 
+                onClick={() => setCurrentPage('profile')}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', overflow: 'hidden' }}
+              >
+                <div style={{
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '50%',
+                  backgroundColor: '#4F46E5',
+                  color: '#ffffff',
+                  fontSize: '0.74rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {user.full_name ? user.full_name[0].toUpperCase() : 'U'}
+                </div>
+                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: isLight ? '#1E1B4B' : '#F8FAFC' }}>
+                    {user.full_name || user.username}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={onLogout}
+                title="Sign Out"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: isLight ? '#94A3B8' : '#64748B',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setCurrentPage('login')}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '10px',
+                backgroundColor: '#4F46E5',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 3px 8px rgba(79, 70, 229, 0.35)'
+              }}
+            >
+              <LogIn size={13} />
+              <span>Sign In / Login</span>
+            </button>
+          )}
         </div>
 
         {/* Navigation Items */}

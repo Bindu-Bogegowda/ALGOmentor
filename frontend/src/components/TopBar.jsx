@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Menu, Flame } from 'lucide-react';
+import { Search, Bell, Menu, Flame, User } from 'lucide-react';
 
 export default function TopBar({ 
   user, 
@@ -147,9 +147,9 @@ export default function TopBar({
           </span>
         </div>
 
-        {/* User Avatar Circle with letter 'B' (from Screenshot) */}
+        {/* User Avatar Circle */}
         <div 
-          onClick={() => onNavigate && onNavigate('profile')}
+          onClick={() => onNavigate && onNavigate(user ? 'profile' : 'login')}
           style={{
             width: '38px',
             height: '38px',
@@ -165,9 +165,9 @@ export default function TopBar({
             boxShadow: '0 2px 8px rgba(30, 27, 75, 0.25)',
             border: '2px solid #FFFFFF'
           }}
-          title={user?.full_name || 'Learner Profile'}
+          title={user?.full_name ? `${user.full_name} (Click for Profile)` : 'Click to Sign In / Login'}
         >
-          {userInitial}
+          {user ? userInitial : <User size={18} />}
         </div>
       </div>
     </header>

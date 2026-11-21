@@ -18,6 +18,7 @@ import StreaksPage from './pages/StreaksPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ReviewPage from './pages/ReviewPage';
 import ProfilePage from './pages/ProfilePage';
+import LoginPage from './pages/LoginPage';
 
 import { api } from './services/api';
 
@@ -191,6 +192,18 @@ export default function App() {
               onProfileUpdated={(updated) => setUser(updated)} 
               theme={theme}
               setTheme={setTheme}
+            />
+          )}
+
+          {currentPage === 'login' && (
+            <LoginPage 
+              onAuthSuccess={(authUser) => {
+                setUser(authUser);
+                loadUser();
+                setCurrentPage('dashboard');
+              }}
+              onNavigate={handleNavigate}
+              theme={theme}
             />
           )}
         </main>
