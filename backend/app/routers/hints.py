@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 
 from app.database import get_db
 from app.models.user import User
@@ -151,3 +151,22 @@ def get_progressive_hint(
             title=title,
             content=content
         )
+
+@router.get("/{problem_id}", response_model=List[HintResponse])
+def get_all_problem_hints(
+    problem_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    prob = db.query(Problem).filter(Problem.id == problem_id).first()
+    if not prob:
+        raise HTTPException(status_code=404, detail="Problem not found")
+
+    return [
+        HintResponse(level=1, title="Level 1: Conceptual Clue", content=prob.hint_level_1),
+        HintResponse(level=2, title="Level 2: Algorithmic Direction", content=prob.hint_level_2),
+        HintResponse(level=3, title="Level 3: Pseudocode Architecture", content=prob.hint_level_3),
+        HintResponse(level=4, title="Level 4: Edge Cases & Boundary Conditions", content=_generate_edge_cases_hint(prob)),
+        HintResponse(level=5, title="Level 5: Code Skeleton & Method Signatures (Java)", content=_generate_code_skeleton_hint(prob)),
+        HintResponse(level=6, title="Level 6: Complexity Bottleneck & Optimization", content=_generate_complexity_hint(prob))
+    ]

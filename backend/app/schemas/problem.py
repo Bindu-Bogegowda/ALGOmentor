@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict
 
 class ProblemSummary(BaseModel):
     id: int
@@ -25,6 +25,7 @@ class ProblemDetail(ProblemSummary):
     starter_code_java: str
     sample_test_cases: List[dict]
     highest_hint_level_used: int = 0
+    hints: List[Dict[str, Any]] = []
 
 class CodeRunRequest(BaseModel):
     problem_id: Optional[int] = None

@@ -54,12 +54,13 @@ function getYouTubeDetails(url) {
 // Clean Embedded Video Player - Plays directly inside the app (Not the YouTube website)
 function YouTubeMasterclassPlayer({ videoUrl, title, isModal = false }) {
   const { videoId, watchUrl } = getYouTubeDetails(videoUrl);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [thumbError, setThumbError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
   const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
-  const embedSrc = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : '';
+  // Use youtube-nocookie.com to avoid tracking/blocking issues; autoplay=1 activates on click
+  const embedSrc = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1` : '';
 
   return (
     <div style={{
@@ -1175,7 +1176,12 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
   const dryRunSteps = selectedLesson ? parseJsonSafe(selectedLesson.dry_run, []) : [];
   const currentDryStep = dryRunSteps[dryRunStep] || null;
   const practiceQuestions = selectedLesson ? parseJsonSafe(selectedLesson.practice_questions, []) : [];
-  const aiHints = selectedLesson ? parseJsonSafe(selectedLesson.ai_hints, []) : [];
+  const rawAiHints = selectedLesson ? parseJsonSafe(selectedLesson.ai_hints, []) : [];
+  const aiHints = (rawAiHints && rawAiHints.length > 0) ? rawAiHints : (selectedLesson ? [
+    { level: 1, title: 'Conceptual Clue', hint: selectedLesson.summary || 'Analyze the problem invariant and how data is structured.' },
+    { level: 2, title: 'Algorithmic Strategy', hint: `Target time complexity is ${selectedLesson.time_complexity || 'O(N)'} with ${selectedLesson.space_complexity || 'O(1)'} auxiliary space.` },
+    { level: 3, title: 'Pseudocode Architecture', hint: selectedLesson.pseudocode || 'Initialize state -> Process elements -> Return result.' }
+  ] : []);
   const quizQuestions = selectedLesson ? parseJsonSafe(selectedLesson.quiz_questions, []) : [];
   const conceptConnections = selectedLesson ? parseJsonSafe(selectedLesson.concept_connections, {}) : {};
 
@@ -1775,10 +1781,24 @@ export default function ConceptsPage({ onNavigate, initialLessonId }) {
 
           {/* Section 9: 3-Level AI Hints */}
           <div style={{ padding: '1.5rem', borderRadius: '14px', backgroundColor: '#0B1120', border: '1px solid #1E293B' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={16} style={{ color: '#c084fc' }} />
-              SECTION 9: 3-Level Progressive AI Hints
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <HelpCircle size={16} style={{ color: '#c084fc' }} />
+                SECTION 9: 3-Level Progressive AI Hints
+              </h3>
+              <button
+                onClick={() => {
+                  const allOpen = aiHints.length > 0 && aiHints.every(h => revealedHints[h.level]);
+                  const updated = {};
+                  aiHints.forEach(h => { updated[h.level] = !allOpen; });
+                  setRevealedHints(updated);
+                }}
+                className="btn-glass"
+                style={{ padding: '0.3rem 0.75rem', fontSize: '0.74rem' }}
+              >
+                {aiHints.length > 0 && aiHints.every(h => revealedHints[h.level]) ? 'Collapse All Hints' : 'Unlock All Hints'}
+              </button>
+            </div>
             <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '1rem' }}>
               Solve without spoiling: reveal Level 1 for conceptual direction, Level 2 for invariant strategies, and Level 3 for pseudocode.
             </p>

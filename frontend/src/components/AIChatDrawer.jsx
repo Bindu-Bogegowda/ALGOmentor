@@ -75,8 +75,6 @@ export default function AIChatDrawer({ isOpen, onClose, contextData = {} }) {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
-  if (!isOpen) return null;
-
   return (
     <div style={{
       position: 'fixed',
@@ -89,7 +87,7 @@ export default function AIChatDrawer({ isOpen, onClose, contextData = {} }) {
       borderLeft: '1px solid var(--border-subtle)',
       boxShadow: '-8px 0 25px rgba(0,0,0,0.4)',
       zIndex: 90,
-      display: 'flex',
+      display: isOpen ? 'flex' : 'none',
       flexDirection: 'column'
     }}>
       {/* Header */}

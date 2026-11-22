@@ -201,9 +201,21 @@ export default function VisualizerPage({ initialAlgorithm, onNavigate }) {
   const [codeLang, setCodeLang] = useState('java');
   const [studentAnswer, setStudentAnswer] = useState(null);
   const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
 
   const currentAlgo = ALGORITHMS_CATALOG.find(a => a.id === selectedAlgoId) || ALGORITHMS_CATALOG[1];
   const speedObj = SPEED_MODES[selectedSpeedIndex];
+
+  // --- Voice Narration (Web Speech API) ---
+  const speakStep = (text) => {
+    if (!text || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.88;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    window.speechSynthesis.speak(utterance);
+  };
 
   useEffect(() => {
     if (initialAlgorithm) {
@@ -213,6 +225,15 @@ export default function VisualizerPage({ initialAlgorithm, onNavigate }) {
 
   const steps = getTeachingSteps(selectedAlgoId);
   const currentStep = steps[currentStepIdx] || steps[0];
+
+  // Narrate current step when it changes
+  useEffect(() => {
+    if (voiceEnabled && currentStep) {
+      const text = currentStep.teacherExplanation || currentStep.stageTitle || '';
+      speakStep(text);
+    }
+    return () => { window.speechSynthesis?.cancel(); };
+  }, [currentStepIdx, voiceEnabled]); // eslint-disable-line
 
   useEffect(() => {
     setCurrentStepIdx(0);
@@ -464,6 +485,32 @@ export default function VisualizerPage({ initialAlgorithm, onNavigate }) {
             <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>
               Step <span style={{ color: 'var(--accent-cyan)' }}>{currentStepIdx + 1}</span> of {steps.length}
             </div>
+
+            {/* Voice Toggle */}
+            <button
+              onClick={() => {
+                const next = !voiceEnabled;
+                setVoiceEnabled(next);
+                if (!next) window.speechSynthesis?.cancel();
+              }}
+              title={voiceEnabled ? 'Mute voice narration' : 'Enable voice narration'}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '999px',
+                border: `1px solid ${voiceEnabled ? 'var(--accent-cyan)' : '#334155'}`,
+                backgroundColor: voiceEnabled ? 'rgba(56,189,248,0.1)' : '#0f172a',
+                color: voiceEnabled ? 'var(--accent-cyan)' : '#475569',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              {voiceEnabled ? '🔊' : '🔇'}
+              <span>{voiceEnabled ? 'Voice On' : 'Voice Off'}</span>
+            </button>
           </div>
         </div>
       </div>

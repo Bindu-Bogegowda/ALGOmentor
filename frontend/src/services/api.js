@@ -103,6 +103,7 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ problem_id: problemId, level, current_code: currentCode })
     }),
+  getAllHints: (problemId) => request(`/hints/${problemId}`),
 
   // Debugger
   analyzeCode: (data) => request('/debugger/analyze', { method: 'POST', body: JSON.stringify(data) }),

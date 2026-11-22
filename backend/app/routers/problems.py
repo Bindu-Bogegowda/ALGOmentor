@@ -9,6 +9,7 @@ from app.models.problem import Problem
 from app.models.submission import UserProblemStatus
 from app.schemas.problem import ProblemSummary, ProblemDetail
 from app.services.auth_service import get_current_user
+from app.routers.hints import _generate_edge_cases_hint, _generate_code_skeleton_hint, _generate_complexity_hint
 
 router = APIRouter(prefix="/problems", tags=["Practice Problem Bank"])
 
@@ -72,6 +73,15 @@ def get_problem(
         UserProblemStatus.problem_id == p.id
     ).first()
 
+    problem_hints = [
+        {"level": 1, "title": "Level 1: Conceptual Clue", "content": p.hint_level_1},
+        {"level": 2, "title": "Level 2: Algorithmic Direction", "content": p.hint_level_2},
+        {"level": 3, "title": "Level 3: Pseudocode Architecture", "content": p.hint_level_3},
+        {"level": 4, "title": "Level 4: Edge Cases & Boundary Conditions", "content": _generate_edge_cases_hint(p)},
+        {"level": 5, "title": "Level 5: Code Skeleton & Method Signatures", "content": _generate_code_skeleton_hint(p)},
+        {"level": 6, "title": "Level 6: Complexity Bottleneck & Optimization", "content": _generate_complexity_hint(p)}
+    ]
+
     return ProblemDetail(
         id=p.id,
         slug=p.slug,
@@ -93,7 +103,8 @@ def get_problem(
         starter_code_python=p.starter_code_python,
         starter_code_java=p.starter_code_java,
         sample_test_cases=json.loads(p.sample_test_cases),
-        highest_hint_level_used=status_rec.highest_hint_level_used if status_rec else 0
+        highest_hint_level_used=status_rec.highest_hint_level_used if status_rec else 0,
+        hints=problem_hints
     )
 
 @router.post("/{slug}/bookmark")
