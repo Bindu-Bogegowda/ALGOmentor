@@ -31,22 +31,17 @@ export default function ProgressPage({ onNavigate }) {
   }
 
   const m = mastery || {
-    total_concepts: 4,
-    completed_concepts: 2,
-    concept_completion_pct: 50.0,
-    total_problems: 4,
-    solved_problems: 2,
-    attempted_problems: 2,
-    unsolved_problems: 2,
-    total_submissions: 2,
-    accuracy_pct: 100.0,
-    topic_breakdown: [
-      { topic: 'Strings', solved: 1, total: 1, percentage: 100 },
-      { topic: 'Arrays', solved: 1, total: 1, percentage: 100 },
-      { topic: 'Searching', solved: 0, total: 1, percentage: 0 },
-      { topic: 'Stacks', solved: 0, total: 1, percentage: 0 }
-    ],
-    learning_consistency: 'High'
+    total_concepts: 0,
+    completed_concepts: 0,
+    concept_completion_pct: 0.0,
+    total_problems: 0,
+    solved_problems: 0,
+    attempted_problems: 0,
+    unsolved_problems: 0,
+    total_submissions: 0,
+    accuracy_pct: 0.0,
+    topic_breakdown: [],
+    learning_consistency: 'Starting Journey'
   };
 
   return (

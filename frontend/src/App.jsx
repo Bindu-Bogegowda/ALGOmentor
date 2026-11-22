@@ -124,6 +124,7 @@ export default function App() {
         }}>
           {currentPage === 'dashboard' && (
             <DashboardPage 
+              user={user}
               onNavigate={handleNavigate} 
               onTriggerAI={() => setAiDrawerOpen(true)} 
             />

@@ -24,14 +24,14 @@ import {
 import { api } from '../services/api';
 import ActivityHeatmap from '../components/ActivityHeatmap';
 
-export default function DashboardPage({ onNavigate, onTriggerAI }) {
+export default function DashboardPage({ user, onNavigate, onTriggerAI }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [perfTimeframe, setPerfTimeframe] = useState('1M'); // '1W', '1M', '3M'
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [user]);
 
   async function loadDashboard() {
     try {
@@ -45,31 +45,76 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
   }
 
   const s = stats || {
-    welcome_message: 'Welcome back, Learner! 👋',
-    user_name: 'Learner',
+    welcome_message: `Welcome back, ${user?.full_name || user?.username || 'Learner'}! 👋`,
+    user_name: user?.full_name || user?.username || 'Learner',
     current_roadmap: 'Data Structures & Algorithms',
-    current_level: 'Intermediate',
-    concepts_completed: 12,
+    current_level: user?.difficulty_level || 'Beginner',
+    concepts_completed: 0,
     total_concepts: 87,
-    problems_solved: 85,
-    problems_attempted: 95,
+    problems_solved: 0,
+    problems_attempted: 0,
     total_problems: 120,
-    current_streak: 7,
-    longest_streak: 14,
-    weekly_learning_hours: 6.5,
-    mastery_percentage: 68.0,
+    current_streak: 0,
+    longest_streak: 0,
+    weekly_learning_hours: 0.0,
+    mastery_percentage: 0.0,
     recommended_lessons: []
   };
 
+  const completedConceptsCount = s.concepts_completed ?? 0;
+  const problemsSolvedCount = s.problems_solved ?? 0;
+  const currentStreakCount = s.current_streak ?? 0;
+  const masteryPct = s.mastery_percentage ?? 0;
+
   const ROADMAP_STEPS = [
-    { id: 'step1', title: 'Programming\nFundamentals', icon: Laptop, status: 'completed' },
-    { id: 'step2', title: 'Arrays &\nStrings', icon: Code, status: 'completed' },
-    { id: 'step3', title: 'Linked\nLists', icon: Link2, status: 'completed' },
-    { id: 'step4', title: 'Stacks &\nQueues', icon: Layers, status: 'current' },
-    { id: 'step5', title: 'Trees &\nGraphs', icon: Network, status: 'locked' },
-    { id: 'step6', title: 'Greedy\nAlgorithms', icon: Compass, status: 'locked' },
-    { id: 'step7', title: 'Dynamic\nProgramming', icon: Grid, status: 'locked' },
-    { id: 'step8', title: 'Advanced\nAlgorithms', icon: Star, status: 'locked' },
+    { 
+      id: 'step1', 
+      title: 'Programming\nFundamentals', 
+      icon: Laptop, 
+      status: completedConceptsCount >= 1 ? 'completed' : 'current' 
+    },
+    { 
+      id: 'step2', 
+      title: 'Arrays &\nStrings', 
+      icon: Code, 
+      status: completedConceptsCount >= 3 ? 'completed' : completedConceptsCount >= 1 ? 'current' : 'locked' 
+    },
+    { 
+      id: 'step3', 
+      title: 'Linked\nLists', 
+      icon: Link2, 
+      status: completedConceptsCount >= 6 ? 'completed' : completedConceptsCount >= 3 ? 'current' : 'locked' 
+    },
+    { 
+      id: 'step4', 
+      title: 'Stacks &\nQueues', 
+      icon: Layers, 
+      status: completedConceptsCount >= 10 ? 'completed' : completedConceptsCount >= 6 ? 'current' : 'locked' 
+    },
+    { 
+      id: 'step5', 
+      title: 'Trees &\nGraphs', 
+      icon: Network, 
+      status: completedConceptsCount >= 15 ? 'completed' : completedConceptsCount >= 10 ? 'current' : 'locked' 
+    },
+    { 
+      id: 'step6', 
+      title: 'Greedy\nAlgorithms', 
+      icon: Compass, 
+      status: completedConceptsCount >= 20 ? 'completed' : completedConceptsCount >= 15 ? 'current' : 'locked' 
+    },
+    { 
+      id: 'step7', 
+      title: 'Dynamic\nProgramming', 
+      icon: Grid, 
+      status: completedConceptsCount >= 25 ? 'completed' : completedConceptsCount >= 20 ? 'current' : 'locked' 
+    },
+    { 
+      id: 'step8', 
+      title: 'Advanced\nAlgorithms', 
+      icon: Star, 
+      status: completedConceptsCount >= 30 ? 'completed' : completedConceptsCount >= 25 ? 'current' : 'locked' 
+    },
   ];
 
   const RECOMMENDED_ITEMS = [
@@ -127,7 +172,7 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
             margin: '0 0 0.5rem 0',
             letterSpacing: '-0.02em'
           }}>
-            Welcome back, Learner! 👋
+            {s.welcome_message || `Welcome back, ${user?.full_name || user?.username || 'Learner'}! 👋`}
           </h1>
           <p style={{ 
             fontSize: '0.94rem', 
@@ -288,13 +333,13 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
           </div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E1B4B', lineHeight: 1.1 }}>
-              {s.concepts_completed || 12}
+              {completedConceptsCount}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, marginTop: '2px' }}>
               Concepts Completed
             </div>
             <div style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 700, marginTop: '2px' }}>
-              ↑ +2 this week
+              {completedConceptsCount > 0 ? `↑ +${completedConceptsCount} completed` : 'Start your first concept'}
             </div>
           </div>
         </div>
@@ -324,13 +369,13 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
           </div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E1B4B', lineHeight: 1.1 }}>
-              {s.problems_solved || 85}
+              {problemsSolvedCount}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, marginTop: '2px' }}>
               Problems Solved
             </div>
             <div style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 700, marginTop: '2px' }}>
-              ↑ +15 this week
+              {problemsSolvedCount > 0 ? `↑ +${problemsSolvedCount} solved` : 'Try your first problem'}
             </div>
           </div>
         </div>
@@ -381,10 +426,10 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
           </div>
           <div>
             <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1E1B4B', lineHeight: 1.1 }}>
-              {s.current_streak || 7} Day Streak
+              {currentStreakCount} Day Streak
             </div>
             <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <span>Keep it up!</span>
+              <span>{currentStreakCount > 0 ? 'Keep it up!' : 'Start today!'}</span>
               <span style={{ color: '#D97706', fontWeight: 700 }}>• Heatmap →</span>
             </div>
             {/* 7 Orange streak pills (from Screenshot) */}
@@ -394,7 +439,7 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
                   width: '12px',
                   height: '5px',
                   borderRadius: '999px',
-                  backgroundColor: '#F59E0B'
+                  backgroundColor: day <= currentStreakCount ? '#F59E0B' : '#CBD5E1'
                 }} />
               ))}
             </div>
@@ -426,7 +471,7 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
                 fill="none"
                 stroke="#0EA5E9"
                 strokeWidth="3.2"
-                strokeDasharray="68, 100"
+                strokeDasharray={`${Math.round(masteryPct)}, 100`}
                 strokeLinecap="round"
               />
             </svg>
@@ -440,7 +485,7 @@ export default function DashboardPage({ onNavigate, onTriggerAI }) {
               fontSize: '0.85rem',
               color: '#1E1B4B'
             }}>
-              68%
+              {Math.round(masteryPct)}%
             </div>
           </div>
 
