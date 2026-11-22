@@ -11,6 +11,7 @@ export default function AITutorPage({ user }) {
       code_snippet: null
     }
   ]);
+  const [sessionId, setSessionId] = useState(null);
   const [inputMsg, setInputMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
@@ -34,9 +35,11 @@ export default function AITutorPage({ user }) {
 
     try {
       const res = await api.sendTutorMessage({
+        session_id: sessionId,
         message: textToSend,
         context_page: 'ai_tutor_full'
       });
+      if (res.session_id) setSessionId(res.session_id);
       setMessages(prev => [
         ...prev,
         {

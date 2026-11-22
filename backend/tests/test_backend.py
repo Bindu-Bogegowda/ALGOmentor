@@ -152,5 +152,27 @@ print(sum(1 for c in s if c in vowels))"""
         self.assertTrue(len(rev.strengths) >= 2)
         print("✓ Streaks heatmap, weekly analytics, and 7-pillar daily AI review verified.")
 
+    def test_11_ai_tutor_answers_specifically(self):
+        # 1. Binary Search query
+        q1 = AIService._offline_tutor_response("Binary search", "general", None, None, None, "Beginner")
+        self.assertIn("Binary Search", q1["reply"])
+        self.assertIn("mid =", q1["code_suggestion"])
+
+        # 2. Binary Search Tree query
+        q2 = AIService._offline_tutor_response("Explain me binary search tree", "general", None, None, None, "Beginner")
+        self.assertIn("Binary Search Tree", q2["reply"])
+        self.assertIn("TreeNode", q2["code_suggestion"])
+
+        # 3. Two Pointers / Sliding Window query
+        q3 = AIService._offline_tutor_response("How to find longest substring without repeating characters", "general", None, None, None, "Beginner")
+        self.assertTrue("Sliding Window" in q3["reply"] or "Two Pointer" in q3["reply"])
+
+        # 4. Novel query gets structured algorithmic breakdown, NOT generic greeting
+        q4 = AIService._offline_tutor_response("Random novel query about caches", "general", None, None, None, "Beginner")
+        self.assertNotIn("Hello! I am your AlgoMentor AI Personal Tutor", q4["reply"])
+        self.assertIn("Algorithmic Concept Breakdown", q4["reply"])
+        print("✓ AI Tutor answers specifically according to question, never repeats generic greeting.")
+        print("✓ AI Tutor answers specifically according to question, never repeats generic greeting.")
+
 if __name__ == "__main__":
     unittest.main()

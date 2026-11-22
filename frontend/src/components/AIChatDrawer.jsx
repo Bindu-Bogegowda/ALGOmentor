@@ -7,10 +7,11 @@ export default function AIChatDrawer({ isOpen, onClose, contextData = {} }) {
     {
       id: 1,
       role: 'assistant',
-      content: 'Hello! I am your AlgoMentor AI Personal Tutor. I can explain algorithms, review code line by line, unpack tricky Big-O complexities, or suggest guided hints.',
+      content: 'Hello! I am your AlgoMentor AI Personal Tutor. Ask me any DSA concept, algorithm walkthrough, Big-O complexity derivation, or code review question!',
       code_snippet: null
     }
   ]);
+  const [sessionId, setSessionId] = useState(null);
   const [inputMsg, setInputMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
@@ -36,12 +37,15 @@ export default function AIChatDrawer({ isOpen, onClose, contextData = {} }) {
 
     try {
       const res = await api.sendTutorMessage({
+        session_id: sessionId,
         message: userText,
         context_page: contextData.page || 'general',
         current_code: contextData.code || null,
         problem_title: contextData.problemTitle || null,
         error_message: contextData.error || null
       });
+
+      if (res.session_id) setSessionId(res.session_id);
 
       const asstMsgObj = {
         id: Date.now() + 1,
